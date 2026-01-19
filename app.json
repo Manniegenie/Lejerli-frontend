@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Lejerli-frontend",
-    "slug": "Lejerli-frontend",
+    "name": "Lejerli",
+    "slug": "lejerli-frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
