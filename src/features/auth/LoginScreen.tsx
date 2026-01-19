@@ -54,9 +54,6 @@ export default function LoginScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Welcome to Lejerli</Text>
-        <Text style={styles.subtitle}>Login to your account</Text>
-
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -104,41 +101,38 @@ export default function LoginScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   card: {
-    backgroundColor: '#fff',
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: '#1e1e1e',
     borderRadius: 12,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#b0b0b0',
     marginBottom: 32,
     textAlign: 'center',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#3a3a3a',
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: '#ffffff',
+    backgroundColor: '#2a2a2a',
   },
   button: {
     backgroundColor: '#007AFF',
@@ -148,7 +142,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#4a4a4a',
   },
   buttonText: {
     color: '#fff',
@@ -161,7 +155,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 14,
-    color: '#666',
+    color: '#b0b0b0',
   },
   link: {
     color: '#007AFF',

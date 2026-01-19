@@ -128,35 +128,35 @@ export default function ConnectWalletScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
   },
   contentContainer: {
     padding: 20,
     paddingTop: 40,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1e1e1e',
     borderRadius: 12,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#b0b0b0',
     marginBottom: 24,
   },
   warningBox: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#3d2e1b',
     padding: 16,
     borderRadius: 8,
     marginBottom: 24,
@@ -166,28 +166,29 @@ const styles = StyleSheet.create({
   warningTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E65100',
+    color: '#fbbf24',
     marginBottom: 8,
   },
   warningText: {
     fontSize: 14,
-    color: '#E65100',
+    color: '#fbbf24',
     lineHeight: 20,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#3a3a3a',
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: '#ffffff',
+    backgroundColor: '#2a2a2a',
     minHeight: 80,
     textAlignVertical: 'top',
   },
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#4a4a4a',
   },
   buttonText: {
     color: '#fff',
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   cancelButtonText: {
-    color: '#666',
+    color: '#b0b0b0',
     fontSize: 16,
   },
 });

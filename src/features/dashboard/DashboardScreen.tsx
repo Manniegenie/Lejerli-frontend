@@ -177,13 +177,13 @@ export default function DashboardScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
   },
   header: {
     padding: 20,
@@ -191,12 +191,12 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 18,
-    color: '#666',
+    color: '#b0b0b0',
   },
   username: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   statsCard: {
     backgroundColor: '#007AFF',
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 6,
   },
@@ -227,16 +227,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 16,
   },
   walletCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1e1e1e',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 2,
-    borderColor: '#e0e0e0',
+    borderColor: '#3a3a3a',
   },
   walletCardConnected: {
     borderColor: '#34C759',
@@ -249,11 +249,11 @@ const styles = StyleSheet.create({
   walletName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   walletInfo: {
     fontSize: 14,
-    color: '#666',
+    color: '#b0b0b0',
     marginTop: 8,
   },
   badge: {
@@ -262,19 +262,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   badgeConnected: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#1b3d1b',
   },
   badgeDisconnected: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#3d2e1b',
   },
   badgeText: {
     fontSize: 12,
     fontWeight: '600',
   },
   badgeTextConnected: {
-    color: '#2E7D32',
+    color: '#4ade80',
   },
   badgeTextDisconnected: {
-    color: '#E65100',
+    color: '#fbbf24',
   },
 });

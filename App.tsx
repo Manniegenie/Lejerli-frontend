@@ -26,7 +26,7 @@ function AppContent() {
   return (
     <>
       <AppNavigator />
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </>
   );
 }
