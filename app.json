@@ -24,7 +24,12 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/logo.png",
+      "name": "Lejerli",
+      "shortName": "Lejerli",
+      "description": "Lejerli",
+      "themeColor": "#0a0a0a",
+      "backgroundColor": "#0a0a0a"
     }
   }
 }

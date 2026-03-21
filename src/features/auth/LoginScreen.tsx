@@ -63,7 +63,7 @@ export default function LoginScreen({ navigation }: any) {
       {isWide && (
         <View style={styles.leftPanel}>
           <Image
-            source={require('../../../assets/icon.png')}
+            source={require('../../../assets/skyscrapper.jpg')}
             style={styles.bgImage}
             resizeMode="cover"
           />
@@ -78,13 +78,12 @@ export default function LoginScreen({ navigation }: any) {
       >
         {/* Logo */}
         <Image
-          source={require('../../../assets/icon.png')}
+          source={require('../../../assets/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
 
         {/* Title */}
-        <Text style={styles.title}>Welcome back</Text>
         <Text style={styles.subtitle}>Log in to your Lejerli account</Text>
 
         {/* Google Button */}
@@ -204,8 +203,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 48,
-    height: 48,
+    width: 164,
+    height: 28.72,
     marginBottom: 24,
   },
 

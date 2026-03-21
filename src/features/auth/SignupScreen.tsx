@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Image,
   ScrollView,
   useWindowDimensions,
+  Animated,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../store/authSlice';
@@ -27,6 +28,38 @@ export default function SignupScreen({ navigation }: any) {
   const dispatch = useDispatch();
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
+
+  // Title slide-in from top
+  const titleTranslateY = useRef(new Animated.Value(-40)).current;
+  const titleOpacity = useRef(new Animated.Value(0)).current;
+
+  // Typewriter for subtitle
+  const fullSubtitle = '21st century money management system!';
+  const [typedSubtitle, setTypedSubtitle] = useState('');
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(titleTranslateY, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(titleOpacity, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setTypedSubtitle(fullSubtitle.slice(0, i));
+      if (i >= fullSubtitle.length) clearInterval(interval);
+    }, 45);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSignup = async () => {
     if (!email || !username || !password || !confirmPassword) {
@@ -79,7 +112,7 @@ export default function SignupScreen({ navigation }: any) {
       {isWide && (
         <View style={styles.leftPanel}>
           <Image
-            source={require('../../../assets/icon.png')}
+            source={require('../../../assets/nomads.jpg')}
             style={styles.bgImage}
             resizeMode="cover"
           />
@@ -94,14 +127,16 @@ export default function SignupScreen({ navigation }: any) {
       >
         {/* Logo */}
         <Image
-          source={require('../../../assets/icon.png')}
+          source={require('../../../assets/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
 
         {/* Title */}
-        <Text style={styles.title}>Create your account</Text>
-        <Text style={styles.subtitle}>Join thousands of users on SkillMart</Text>
+        <Animated.Text style={[styles.title, { opacity: titleOpacity, transform: [{ translateY: titleTranslateY }] }]}>
+          Create your account
+        </Animated.Text>
+        <Text style={styles.subtitle}>{typedSubtitle}</Text>
 
         {/* Google Button */}
         <TouchableOpacity style={styles.googleButton}>
@@ -265,8 +300,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 48,
-    height: 48,
+    width: 164,
+    height: 28.72,
     marginBottom: 24,
   },
 
