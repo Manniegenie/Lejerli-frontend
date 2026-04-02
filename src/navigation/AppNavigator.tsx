@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { TouchableOpacity, Text } from 'react-native';
@@ -11,46 +10,27 @@ import authService from '../services/authService';
 // Auth Screens
 import LoginScreen from '../features/auth/LoginScreen';
 import SignupScreen from '../features/auth/SignupScreen';
+import VerificationScreen from '../features/auth/VerificationScreen';
+import TwoFactorScreen from '../features/auth/TwoFactorScreen';
 
 // Main Screens
 import DashboardScreen from '../features/dashboard/DashboardScreen';
+import HomeScreen from '../features/home/HomeScreen';
 import ConnectWalletScreen from '../features/wallet/ConnectWalletScreen';
 
+// Common
+import LoadingScreen from '../components/common/LoadingScreen';
+
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
 
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="Verification" component={VerificationScreen} />
+      <Stack.Screen name="TwoFactor" component={TwoFactorScreen} />
     </Stack.Navigator>
-  );
-}
-
-function MainTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
-        headerStyle: {
-          backgroundColor: '#fff',
-        },
-        headerTitleStyle: {
-          fontWeight: '600',
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarLabel: 'Home',
-          title: 'Dashboard',
-        }}
-      />
-    </Tab.Navigator>
   );
 }
 
@@ -63,14 +43,9 @@ function MainStack() {
   };
 
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="MainTabs"
-        component={MainTabs}
-        options={{
-          headerShown: false,
-        }}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Dashboard" component={DashboardScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen
         name="ConnectWallet"
         component={ConnectWalletScreen}
@@ -88,7 +63,11 @@ function MainStack() {
 }
 
 export default function AppNavigator() {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <NavigationContainer>

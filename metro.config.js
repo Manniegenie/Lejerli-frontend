@@ -4,6 +4,7 @@ const config = getDefaultConfig(__dirname);
 
 config.watchFolders = [__dirname];
 config.resolver.unstable_enableSymlinks = false;
+config.resolver.assetExts = [...config.resolver.assetExts, 'lottie', 'wasm'];
 
 // Enable polling for WSL/Windows cross-filesystem watching
 config.watcher = {

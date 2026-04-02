@@ -5,15 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   Image,
-  ScrollView,
-  useWindowDimensions,
   Animated,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from '../../store/authSlice';
 import authService from '../../services/authService';
 
 export default function SignupScreen({ navigation }: any) {
@@ -25,17 +20,10 @@ export default function SignupScreen({ navigation }: any) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
-  const { width } = useWindowDimensions();
-  const isWide = width >= 768;
+  const [error, setError] = useState('');
 
-  // Title slide-in from top
   const titleTranslateY = useRef(new Animated.Value(-40)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
-
-  // Typewriter for subtitle
-  const fullSubtitle = '21st century money management system!';
-  const [typedSubtitle, setTypedSubtitle] = useState('');
 
   useEffect(() => {
     Animated.parallel([
@@ -50,55 +38,37 @@ export default function SignupScreen({ navigation }: any) {
         useNativeDriver: true,
       }),
     ]).start();
-
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      setTypedSubtitle(fullSubtitle.slice(0, i));
-      if (i >= fullSubtitle.length) clearInterval(interval);
-    }, 45);
-
-    return () => clearInterval(interval);
   }, []);
 
   const handleSignup = async () => {
+    setError('');
     if (!email || !username || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
+      setError('Please fill in all fields'); return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
-      return;
+      setError('Passwords do not match'); return;
     }
-    if (password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
-      return;
+    if (password.length < 7) {
+      setError('Password must be at least 7 characters'); return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>_\-+=~`[\]\\;'/]/.test(password)) {
+      setError('Password must contain at least one special character'); return;
+    }
+    if (!/\d/.test(password)) {
+      setError('Password must contain at least one digit'); return;
     }
     if (!agreedToTerms) {
-      Alert.alert('Error', 'Please agree to the Terms of Service and Privacy Policy');
-      return;
+      setError('Please agree to the Terms of Service and Privacy Policy'); return;
     }
 
     try {
       setLoading(true);
       const response = await authService.signup({ email, username, password });
       if (response.success) {
-        dispatch(
-          setCredentials({
-            user: {
-              id: response.data.id,
-              email: response.data.email,
-              username: response.data.username,
-            },
-            token: response.data.token,
-          })
-        );
+        navigation.navigate('Verification', { email });
       }
-    } catch (error: any) {
-      Alert.alert(
-        'Signup Failed',
-        error.response?.data?.message || 'An error occurred'
-      );
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -108,161 +78,97 @@ export default function SignupScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      {/* Left panel — background image (visible on wide screens) */}
-      {isWide && (
-        <View style={styles.leftPanel}>
-          <Image
-            source={require('../../../assets/nomads.jpg')}
-            style={styles.bgImage}
-            resizeMode="cover"
-          />
-        </View>
-      )}
+      {/* Left panel */}
+      <View style={styles.leftPanel}>
+        <Image source={require('../../../assets/nomads.jpg')} style={styles.bgImage} resizeMode="cover" />
+      </View>
 
-      {/* Right panel — form */}
-      <ScrollView
-        style={[styles.rightPanel, !isWide && styles.rightPanelFull]}
-        contentContainerStyle={styles.modalContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Logo */}
-        <Image
-          source={require('../../../assets/logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+      {/* Black space — centers the form within remaining area */}
+      <View style={styles.blackSpace}>
+      <View style={styles.rightPanel}>
+        <View style={styles.content}>
+          <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
 
-        {/* Title */}
-        <Animated.Text style={[styles.title, { opacity: titleOpacity, transform: [{ translateY: titleTranslateY }] }]}>
-          Create your account
-        </Animated.Text>
-        <Text style={styles.subtitle}>{typedSubtitle}</Text>
-
-        {/* Google Button */}
-        <TouchableOpacity style={styles.googleButton}>
-          <View style={styles.googleLogoBox}>
-            <Text style={[styles.googleLetter, { color: '#4285F4' }]}>G</Text>
-            <Text style={[styles.googleLetter, { color: '#EA4335' }]}>o</Text>
-            <Text style={[styles.googleLetter, { color: '#FBBC05' }]}>o</Text>
-            <Text style={[styles.googleLetter, { color: '#4285F4' }]}>g</Text>
-            <Text style={[styles.googleLetter, { color: '#34A853' }]}>l</Text>
-            <Text style={[styles.googleLetter, { color: '#EA4335' }]}>e</Text>
+          {/* Progress bars */}
+          <View style={styles.progressRow}>
+            <View style={styles.progressOrange} />
+            <View style={styles.progressGray} />
           </View>
-          <Text style={styles.googleText}>Continue With Google</Text>
-        </TouchableOpacity>
 
-        {/* OR Divider */}
-        <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OR</Text>
-          <View style={styles.dividerLine} />
-        </View>
+          <Animated.Text style={[styles.title, { opacity: titleOpacity, transform: [{ translateY: titleTranslateY }] }]}>
+            Create your account
+          </Animated.Text>
 
-        {/* Work Email */}
-        <Text style={styles.label}>Work Email</Text>
-        <View style={styles.inputRow}>
-          <Text style={styles.inputIcon}>✉</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your work Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholderTextColor="#555"
-          />
-        </View>
+          {/* Google Button */}
+          <TouchableOpacity style={styles.googleButton}>
+            <Image source={require('../../../assets/google.png')} style={styles.googleIcon} resizeMode="contain" />
+            <Text style={styles.googleText}>Continue With Google</Text>
+          </TouchableOpacity>
 
-        {/* Company Name */}
-        <Text style={styles.label}>Company Name</Text>
-        <View style={styles.inputRow}>
-          <Text style={styles.inputIcon}>⊙</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your Company Name"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            placeholderTextColor="#555"
-          />
-        </View>
+          {/* OR Divider */}
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
-        {/* Password */}
-        <Text style={styles.label}>Password</Text>
-        <View style={styles.inputRow}>
-          <Text style={styles.inputIcon}>⊕</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            placeholderTextColor="#555"
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Text style={styles.eyeIcon}>{showPassword ? '◉' : '◎'}</Text>
+          <Text style={styles.label}>Work Email</Text>
+          <View style={styles.inputRow}>
+            <Text style={styles.inputIcon}>✉</Text>
+            <TextInput style={styles.input} placeholder="Enter your work Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholderTextColor="#555" />
+          </View>
+
+          <Text style={styles.label}>Company Name</Text>
+          <View style={styles.inputRow}>
+            <Text style={styles.inputIcon}>⊙</Text>
+            <TextInput style={styles.input} placeholder="Enter your Company Name" value={username} onChangeText={setUsername} autoCapitalize="none" placeholderTextColor="#555" />
+          </View>
+
+          <Text style={styles.label}>Password</Text>
+          <View style={styles.inputRow}>
+            <Text style={styles.inputIcon}>⊕</Text>
+            <TextInput style={styles.input} placeholder="Enter password" value={password} onChangeText={setPassword} secureTextEntry={!showPassword} placeholderTextColor="#555" />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Text style={styles.eyeIcon}>{showPassword ? '◉' : '◎'}</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.hint}>Min 7 characters, include a digit and special character (e.g. !@#$%)</Text>
+
+          <Text style={styles.label}>Confirm Password</Text>
+          <View style={styles.inputRow}>
+            <Text style={styles.inputIcon}>⊕</Text>
+            <TextInput style={styles.input} placeholder="Enter password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={!showConfirmPassword} placeholderTextColor="#555" />
+            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+              <Text style={styles.eyeIcon}>{showConfirmPassword ? '◉' : '◎'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.termsRow} onPress={() => setAgreedToTerms(!agreedToTerms)} activeOpacity={0.7}>
+            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+              {agreedToTerms && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+            <Text style={styles.termsText}>
+              I agree to Lejerli's{' '}
+              <Text style={styles.termsLink}>Terms of Service</Text>
+              {' '}and{' '}
+              <Text style={styles.termsLink}>Privacy Policy</Text>
+            </Text>
+          </TouchableOpacity>
+
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+          <TouchableOpacity style={[styles.button, !buttonActive && styles.buttonDisabled]} onPress={handleSignup} disabled={!buttonActive}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create account  →</Text>}
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginRow}>
+            <Text style={styles.loginText}>
+              Already have an account?{' '}<Text style={styles.loginLink}>LOGIN</Text>
+            </Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.hint}>Must be at least 8 characters</Text>
-
-        {/* Confirm Password */}
-        <Text style={styles.label}>Confirm Password</Text>
-        <View style={styles.inputRow}>
-          <Text style={styles.inputIcon}>⊕</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={!showConfirmPassword}
-            placeholderTextColor="#555"
-          />
-          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-            <Text style={styles.eyeIcon}>{showConfirmPassword ? '◉' : '◎'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Terms */}
-        <TouchableOpacity
-          style={styles.termsRow}
-          onPress={() => setAgreedToTerms(!agreedToTerms)}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
-            {agreedToTerms && <Text style={styles.checkmark}>✓</Text>}
-          </View>
-          <Text style={styles.termsText}>
-            I agree to Lejerli's{' '}
-            <Text style={styles.termsLink}>Terms of Service</Text>
-            {' '}and{' '}
-            <Text style={styles.termsLink}>Privacy Policy</Text>
-          </Text>
-        </TouchableOpacity>
-
-        {/* Create Account Button */}
-        <TouchableOpacity
-          style={[styles.button, !buttonActive && styles.buttonDisabled]}
-          onPress={handleSignup}
-          disabled={!buttonActive}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Create account  →</Text>
-          )}
-        </TouchableOpacity>
-
-        {/* Login link */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Login')}
-          style={styles.loginRow}
-        >
-          <Text style={styles.loginText}>
-            Already have an account?{' '}
-            <Text style={styles.loginLink}>LOGIN</Text>
-          </Text>
-        </TouchableOpacity>
-      </ScrollView>
+      </View>
+      </View>
     </View>
   );
 }
@@ -273,53 +179,62 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#0a0a0a',
   },
-
-  // Left panel
   leftPanel: {
-    flex: 1,
-    backgroundColor: '#111',
+    width: 703,
+    height: 1289,
+    overflow: 'hidden',
   },
   bgImage: {
-    width: '100%',
-    height: '100%',
+    width: 703,
+    height: 1289,
   },
-
-  // Right panel
+  blackSpace: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   rightPanel: {
     width: 775,
     backgroundColor: '#0a0a0a',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  rightPanelFull: {
-    width: undefined,
-    flex: 1,
-  },
-  modalContent: {
+  content: {
     paddingHorizontal: 48,
-    paddingVertical: 40,
-    gap: 0,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
-
   logo: {
     width: 164,
     height: 28.72,
     marginBottom: 24,
   },
-
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 28,
+  },
+  progressOrange: {
+    flex: 390,
+    height: 6,
+    borderRadius: 100,
+    backgroundColor: '#F26522',
+  },
+  progressGray: {
+    flex: 389,
+    height: 6,
+    borderRadius: 100,
+    backgroundColor: '#F9F9FA',
+  },
   title: {
     fontSize: 44,
     fontWeight: '500',
     color: '#ffffff',
     lineHeight: 44,
-    fontFamily: 'GeneralSans-Medium',
+    fontFamily: 'GeneralSans',
     marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 15,
-    color: '#888888',
-    marginBottom: 28,
-  },
-
-  // Google button
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -331,21 +246,17 @@ const styles = StyleSheet.create({
     height: 52,
     gap: 10,
     marginBottom: 20,
+    marginTop: 16,
   },
-  googleLogoBox: {
-    flexDirection: 'row',
-  },
-  googleLetter: {
-    fontSize: 15,
-    fontWeight: '700',
+  googleIcon: {
+    width: 22,
+    height: 22,
   },
   googleText: {
     fontSize: 15,
     fontWeight: '500',
     color: '#ffffff',
   },
-
-  // OR divider
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -361,8 +272,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#555',
   },
-
-  // Inputs
   label: {
     fontSize: 13,
     color: '#aaaaaa',
@@ -390,7 +299,8 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 15,
     height: '100%',
-    outlineStyle: 'none',
+    outlineStyle: 'none' as any,
+    outlineWidth: 0,
   },
   eyeIcon: {
     fontSize: 16,
@@ -403,14 +313,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     marginTop: 2,
   },
-
-  // Terms
   termsRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
     marginTop: 16,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   checkbox: {
     width: 18,
@@ -441,8 +349,11 @@ const styles = StyleSheet.create({
     color: '#F26522',
     fontWeight: '500',
   },
-
-  // Create account button
+  errorText: {
+    color: '#FF4444',
+    fontSize: 13,
+    marginBottom: 12,
+  },
   button: {
     width: '100%',
     height: 67,
@@ -462,8 +373,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-
-  // Login link
   loginRow: {
     alignItems: 'center',
   },

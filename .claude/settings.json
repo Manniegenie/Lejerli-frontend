@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Read(//c/Users/HP/**)",
+      "Bash(ls -la C:/Users/HP/Lejerli/.env*)",
+      "Bash(node -e \"const b = require\\(''@getbrevo/brevo''\\); console.log\\(Object.keys\\(b\\).slice\\(0,10\\)\\)\")",
+      "WebSearch",
+      "WebFetch(domain:developers.google.com)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebFetch(domain:codepen.io)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:www.svgrepo.com)",
+      "Bash(npx expo:*)",
+      "Bash(node scripts/seedDev.js)"
+    ]
+  }
+}

@@ -25,7 +25,7 @@ export interface AuthResponse {
 
 class AuthService {
   async signup(data: SignupData): Promise<AuthResponse> {
-    const response = await api.post('/auth/signup', data);
+    const response = await api.post('/signup', data);
     if (response.data.success && response.data.data.token) {
       await this.saveAuthData(response.data.data);
     }
@@ -33,7 +33,7 @@ class AuthService {
   }
 
   async login(data: LoginData): Promise<AuthResponse> {
-    const response = await api.post('/auth/login', data);
+    const response = await api.post('/signin', data);
     if (response.data.success && response.data.data.token) {
       await this.saveAuthData(response.data.data);
     }
