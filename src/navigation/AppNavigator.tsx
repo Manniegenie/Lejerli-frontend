@@ -15,6 +15,7 @@ import TwoFactorScreen from '../features/auth/TwoFactorScreen';
 
 // Main Screens
 import DashboardScreen from '../features/dashboard/DashboardScreen';
+import ChannelsScreen from '../features/channels/ChannelsScreen';
 import HomeScreen from '../features/home/HomeScreen';
 import ConnectWalletScreen from '../features/wallet/ConnectWalletScreen';
 
@@ -45,6 +46,7 @@ function MainStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
+      <Stack.Screen name="Channels" component={ChannelsScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen
         name="ConnectWallet"

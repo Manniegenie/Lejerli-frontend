@@ -30,7 +30,8 @@
     "react-native-screens": "^4.19.0",
     "react-native-svg": "15.12.1",
     "react-native-web": "^0.21.0",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "victory-native": "^36.9.2"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",

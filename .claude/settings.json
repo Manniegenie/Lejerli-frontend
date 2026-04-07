@@ -13,7 +13,12 @@
       "WebFetch(domain:gist.github.com)",
       "WebFetch(domain:www.svgrepo.com)",
       "Bash(npx expo:*)",
-      "Bash(node scripts/seedDev.js)"
+      "Bash(node scripts/seedDev.js)",
+      "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/Home/style.css\")",
+      "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/Blog/style.css\")",
+      "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/FAQ/style.css\")",
+      "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/HelpCenter/style.css\")",
+      "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/PrivacyPolicy/style.css\")"
     ]
   }
 }
