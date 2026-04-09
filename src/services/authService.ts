@@ -1,5 +1,4 @@
 import api from './api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface SignupData {
   email: string;
@@ -26,54 +25,42 @@ export interface AuthResponse {
 class AuthService {
   async signup(data: SignupData): Promise<AuthResponse> {
     const response = await api.post('/signup', data);
-    if (response.data.success && response.data.data.token) {
-      await this.saveAuthData(response.data.data);
+    if (response.data.success && response.data.data?.token) {
+      this.saveAuthData(response.data.data);
     }
     return response.data;
   }
 
   async login(data: LoginData): Promise<AuthResponse> {
     const response = await api.post('/signin', data);
-    if (response.data.success && response.data.data.token) {
-      await this.saveAuthData(response.data.data);
+    if (response.data.success && response.data.data?.token) {
+      this.saveAuthData(response.data.data);
     }
     return response.data;
   }
 
   async logout(): Promise<void> {
-    await AsyncStorage.removeItem('authToken');
-    await AsyncStorage.removeItem('user');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
   }
 
-  async getCurrentUser() {
-    const response = await api.get('/auth/me');
-    return response.data;
+  // Synchronous — used by authSlice initial state and AppNavigator restore
+  getStoredToken(): string | null {
+    return localStorage.getItem('auth_token');
   }
 
-  private async saveAuthData(data: {
-    token: string;
-    id: string;
-    email: string;
-    username: string;
-  }): Promise<void> {
-    await AsyncStorage.setItem('authToken', data.token);
-    await AsyncStorage.setItem(
-      'user',
-      JSON.stringify({
-        id: data.id,
-        email: data.email,
-        username: data.username,
-      })
-    );
+  getStoredUser(): any | null {
+    const s = localStorage.getItem('auth_user');
+    return s ? JSON.parse(s) : null;
   }
 
-  async getStoredToken(): Promise<string | null> {
-    return await AsyncStorage.getItem('authToken');
-  }
-
-  async getStoredUser(): Promise<any | null> {
-    const userString = await AsyncStorage.getItem('user');
-    return userString ? JSON.parse(userString) : null;
+  private saveAuthData(data: { token: string; id: string; email: string; username: string }): void {
+    localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('auth_user', JSON.stringify({
+      id: data.id,
+      email: data.email,
+      username: data.username,
+    }));
   }
 }
 

@@ -1,50 +1,48 @@
 import api from './api';
 
-export interface ConnectWalletData {
-  apiKey: string;
-  apiSecret: string;
+export interface WalletSnapshot {
+  totalUSD: string | null;
+  assetCount: number;
+  canTrade: boolean | null;
+  lastUpdated: string | null;
 }
 
-export interface WalletStatus {
+export interface WalletStatusEntry {
   connected: boolean;
   connectedAt: string | null;
   lastSynced: string | null;
+  snapshot: WalletSnapshot | null;
 }
 
-export interface WalletStatusResponse {
-  success: boolean;
-  data: {
-    binance: WalletStatus;
-    kraken: WalletStatus;
-    coinbase: WalletStatus;
-  };
+export interface BalanceEntry {
+  asset: string;
+  free: string;
+  locked: string;
+  usdValue: string;
 }
 
-class WalletService {
-  async connectBinance(data: ConnectWalletData) {
-    const response = await api.post('/wallet/binance', data);
-    return response.data;
-  }
+const walletService = {
+  async getStatus(): Promise<Record<string, WalletStatusEntry>> {
+    const res = await api.get('/wallet/status');
+    return res.data.data;
+  },
 
-  async connectKraken(data: ConnectWalletData) {
-    const response = await api.post('/wallet/kraken', data);
-    return response.data;
-  }
+  async getBalances(exchange: string): Promise<BalanceEntry[]> {
+    const res = await api.get(`/wallet/balances/${exchange}`);
+    return res.data.data;
+  },
 
-  async connectCoinbase(data: ConnectWalletData) {
-    const response = await api.post('/wallet/coinbase', data);
-    return response.data;
-  }
+  async connect(exchange: string, apiKey: string, apiSecret: string): Promise<void> {
+    await api.post(`/wallet/${exchange}`, { apiKey, apiSecret });
+  },
 
-  async getWalletStatus(): Promise<WalletStatusResponse> {
-    const response = await api.get('/wallet/status');
-    return response.data;
-  }
+  async connectDex(exchange: string, walletAddress: string): Promise<void> {
+    await api.post(`/wallet/${exchange}`, { walletAddress });
+  },
 
-  async disconnectWallet(exchange: 'binance' | 'kraken' | 'coinbase') {
-    const response = await api.delete(`/wallet/${exchange}`);
-    return response.data;
-  }
-}
+  async disconnect(exchange: string): Promise<void> {
+    await api.delete(`/wallet/${exchange}`);
+  },
+};
 
-export default new WalletService();
+export default walletService;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { logout } from '../../store/authSlice';
 import authService from '../../services/authService';
+import { useClocks } from '../../hooks/useClocks';
+import { useLiquidity } from '../../hooks/useLiquidity';
+import { useProfitNet } from '../../hooks/useProfitNet';
+import { useNews } from '../../hooks/useNews';
 
 
 const plData = [
@@ -29,49 +33,10 @@ export default function DashboardScreen({ navigation }: any) {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
 
-  // ── Clocks — driven from backend ─────────────────────────────────────────
-  const [clocks, setClocks] = useState<{ label: string; tz: string; time: string }[]>([]);
-  useEffect(() => {
-    const fetchClocks = async () => {
-      try {
-        const res  = await fetch('http://localhost:3000/clocks');
-        const json = await res.json();
-        if (json.success) setClocks(json.data);
-      } catch (_) {}
-    };
-    fetchClocks();
-    const id = setInterval(fetchClocks, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // ── News ticker ──────────────────────────────────────────────────────────
-  const [newsItem, setNewsItem] = useState<{ title: string; source: string; region: string; image: string | null; link: string | null } | null>(null);
-  const newsOpacity = useRef(new Animated.Value(1)).current;
-
-  const fetchNews = async () => {
-    try {
-      const res = await fetch('http://localhost:3000/news');
-      const json = await res.json();
-      if (json.success) return json.data;
-    } catch (_) {}
-    return null;
-  };
-
-  const cycleNews = async () => {
-    // Fade out
-    Animated.timing(newsOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start(async () => {
-      const item = await fetchNews();
-      if (item) setNewsItem(item);
-      // Fade in
-      Animated.timing(newsOpacity, { toValue: 1, duration: 400, useNativeDriver: true }).start();
-    });
-  };
-
-  useEffect(() => {
-    cycleNews(); // initial load
-    const interval = setInterval(cycleNews, 10_000);
-    return () => clearInterval(interval);
-  }, []);
+  const clocks                    = useClocks();
+  const { cryptoLiquidity }       = useLiquidity();
+  const { profitNet: profitGross } = useProfitNet();
+  const { newsItem, newsOpacity } = useNews();
   // ─────────────────────────────────────────────────────────────────────────
 
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -247,28 +212,40 @@ export default function DashboardScreen({ navigation }: any) {
           </View>
 
           {/* Cards row */}
-          <View style={styles.cardsRow}>
-            <View style={styles.card}>
-              <View style={styles.cardHeaderRow}>
-                <Text style={styles.cardHeaderLabel} numberOfLines={1}>Total Liquidity</Text>
+          {(() => {
+            const fmtUSD = (n: number) =>
+              '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return (
+              <View style={styles.cardsRow}>
+                <View style={styles.card}>
+                  <View style={styles.cardHeaderRow}>
+                    <Text style={styles.cardHeaderLabel} numberOfLines={1}>Total Liquidity</Text>
+                  </View>
+                  <Text style={styles.cardValue}>{fmtUSD(cryptoLiquidity)}</Text>
+                </View>
+                <View style={styles.card}>
+                  <View style={styles.cardHeaderRow}>
+                    <Text style={styles.cardHeaderLabel} numberOfLines={1}>Crypto Liquidity</Text>
+                  </View>
+                  <Text style={styles.cardValue}>{fmtUSD(cryptoLiquidity)}</Text>
+                </View>
+                <View style={styles.card}>
+                  <View style={styles.cardHeaderRow}>
+                    <Text style={styles.cardHeaderLabel} numberOfLines={1}>Fiat Liquidity</Text>
+                  </View>
+                  <Text style={styles.cardValue}>$0.00</Text>
+                </View>
+                <View style={styles.card}>
+                  <View style={styles.cardHeaderRow}>
+                    <Text style={styles.cardHeaderLabel} numberOfLines={1}>Profit-Net</Text>
+                  </View>
+                  <Text style={[styles.cardValue, profitGross > 0 && { color: '#22c55e' }]}>
+                    {fmtUSD(profitGross)}
+                  </Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.card}>
-              <View style={styles.cardHeaderRow}>
-                <Text style={styles.cardHeaderLabel} numberOfLines={1}>Crypto Liquidity</Text>
-              </View>
-            </View>
-            <View style={styles.card}>
-              <View style={styles.cardHeaderRow}>
-                <Text style={styles.cardHeaderLabel} numberOfLines={1}>Fiat Liquidity</Text>
-              </View>
-            </View>
-            <View style={styles.card}>
-              <View style={styles.cardHeaderRow}>
-                <Text style={styles.cardHeaderLabel} numberOfLines={1}>Today's P&L</Text>
-              </View>
-            </View>
-          </View>
+            );
+          })()}
 
           {/* News ticker */}
           <TouchableOpacity
@@ -1096,6 +1073,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     letterSpacing: 0,
     color: '#505050',
+  },
+  cardValue: {
+    fontFamily: 'GeneralSans',
+    fontWeight: '700',
+    fontSize: 22,
+    color: '#ffffff',
+    marginTop: 10,
   },
   cardHeaderRow: {
     height: 20,

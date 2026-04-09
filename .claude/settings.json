@@ -18,7 +18,11 @@
       "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/Blog/style.css\")",
       "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/FAQ/style.css\")",
       "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/HelpCenter/style.css\")",
-      "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/PrivacyPolicy/style.css\")"
+      "Bash(\"c:/Users/HP/ZeusODX-web/src/screens/PrivacyPolicy/style.css\")",
+      "WebFetch(domain:binance-docs.github.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:developers.binance.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

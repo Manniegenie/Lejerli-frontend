@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { TouchableOpacity, Text } from 'react-native';
-import { logout } from '../store/authSlice';
+import { logout, setCredentials, setLoading } from '../store/authSlice';
 import authService from '../services/authService';
 
 // Auth Screens
@@ -66,6 +66,19 @@ function MainStack() {
 
 export default function AppNavigator() {
   const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+
+  // On app start: restore session from localStorage if Redux has no token yet
+  useEffect(() => {
+    if (isAuthenticated) return;
+
+    const token = authService.getStoredToken();
+    const user  = authService.getStoredUser();
+    if (token && user) {
+      dispatch(setCredentials({ token, user }));
+    }
+    dispatch(setLoading(false));
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;

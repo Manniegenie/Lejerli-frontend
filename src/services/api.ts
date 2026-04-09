@@ -1,38 +1,34 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://localhost:3000';
-
-// Create axios instance
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'http://localhost:3000',
+  timeout: 30000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor — reads token synchronously from localStorage
+// Uses the same key ('auth_token') that authSlice writes on login/restore
 api.interceptors.request.use(
-  async (config) => {
-    const token = await AsyncStorage.getItem('authToken');
+  (config) => {
+    const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// Response interceptor — on 401/403 clear stale auth data
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid, clear storage
-      await AsyncStorage.removeItem('authToken');
-      await AsyncStorage.removeItem('user');
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
     }
     return Promise.reject(error);
   }
