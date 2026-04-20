@@ -13,7 +13,7 @@ export function useClocks(): ClockEntry[] {
     };
 
     tick();
-    const id = setInterval(tick, 1000);
+    const id = setInterval(tick, 30_000);
     return () => clearInterval(id);
   }, []);
 

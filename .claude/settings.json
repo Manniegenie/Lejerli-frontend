@@ -22,7 +22,9 @@
       "WebFetch(domain:binance-docs.github.io)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:developers.binance.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh repo:*)",
+      "WebFetch(domain:developer.tawk.to)"
     ]
   }
 }

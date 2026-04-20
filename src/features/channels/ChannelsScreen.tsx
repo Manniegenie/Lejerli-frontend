@@ -16,7 +16,7 @@ import { logout } from '../../store/authSlice';
 import authService from '../../services/authService';
 import walletService from '../../services/walletService';
 import treeService from '../../services/treeService';
-import channelService from '../../services/channelService';
+import channelService, { ChannelRow } from '../../services/channelService';
 import { useClocks } from '../../hooks/useClocks';
 import { useTrees } from '../../hooks/useTrees';
 import { useChannels } from '../../hooks/useChannels';
@@ -60,7 +60,6 @@ export default function ChannelsScreen({ navigation }: any) {
 
   type AssetMargin = { asset: string; usdValue: string; selected: boolean; margin: string; livePrice: number | null };
   const [treeAssets,   setTreeAssets]   = useState<AssetMargin[]>([]);
-  const [livePrices,   setLivePrices]   = useState<Record<string, number>>({});
   const [pricesLoading, setPricesLoading] = useState(false);
 
   const resetTree = () => {
@@ -680,83 +679,6 @@ export default function ChannelsScreen({ navigation }: any) {
                       ))}
                     </View>
 
-                    {/* Import Historical Data toggle */}
-                    <View style={styles.fieldGroup}>
-                      <TouchableOpacity style={styles.importToggleRow} activeOpacity={0.85} onPress={toggleImport}>
-                        <View style={styles.importToggleText}>
-                          <Text style={styles.permLabel}>Import Historical Data</Text>
-                          <Text style={styles.permDesc}>Select a date range to pull past transactions</Text>
-                        </View>
-                        <Animated.View style={[styles.toggleTrack, { backgroundColor: importToggleAnim.interpolate({ inputRange: [0,1], outputRange: ['#333333','#F26522'] }) }]}>
-                          <Animated.View style={[styles.toggleThumb, { transform: [{ translateX: importToggleAnim.interpolate({ inputRange: [0,1], outputRange: [2, 22] }) }] }]} />
-                        </Animated.View>
-                      </TouchableOpacity>
-
-                      {importEnabled && (
-                        <View style={styles.importRangeBlock}>
-                          {/* From / To date buttons */}
-                          <View style={styles.importDateRow}>
-                            <TouchableOpacity
-                              style={[styles.importDateBtn, calTarget === 'from' && styles.importDateBtnActive]}
-                              onPress={() => calTarget === 'from' ? setCalTarget(null) : openCal('from', importFrom)}
-                            >
-                              <Text style={styles.importDateLabel}>From</Text>
-                              <Text style={styles.importDateValue}>{fmtDate(importFrom)}</Text>
-                            </TouchableOpacity>
-
-                            <Text style={styles.importDateArrow}>→</Text>
-
-                            <TouchableOpacity
-                              style={[styles.importDateBtn, calTarget === 'to' && styles.importDateBtnActive]}
-                              onPress={() => calTarget === 'to' ? setCalTarget(null) : openCal('to', importTo)}
-                            >
-                              <Text style={styles.importDateLabel}>To</Text>
-                              <Text style={styles.importDateValue}>{fmtDate(importTo)}</Text>
-                            </TouchableOpacity>
-                          </View>
-
-                          {/* Inline calendar */}
-                          {calTarget !== null && (
-                            <View style={styles.calendarBox}>
-                              {/* Month navigation */}
-                              <View style={styles.calHeader}>
-                                <TouchableOpacity onPress={prevMonth} style={styles.calNavBtn}><Text style={styles.calNavArrow}>‹</Text></TouchableOpacity>
-                                <Text style={styles.calMonthLabel}>{MONTHS[calMonth]} {calYear}</Text>
-                                <TouchableOpacity onPress={nextMonth} style={styles.calNavBtn}><Text style={styles.calNavArrow}>›</Text></TouchableOpacity>
-                              </View>
-
-                              {/* Day-of-week headers */}
-                              <View style={styles.calDayRow}>
-                                {DAYS.map(d => <Text key={d} style={styles.calDayHeader}>{d}</Text>)}
-                              </View>
-
-                              {/* Day grid */}
-                              <View style={styles.calGrid}>
-                                {buildCalDays().map((day, idx) => {
-                                  if (!day) return <View key={`e${idx}`} style={styles.calCell} />;
-                                  const thisDate  = new Date(calYear, calMonth, day);
-                                  const isFrom    = thisDate.toDateString() === importFrom.toDateString();
-                                  const isTo      = thisDate.toDateString() === importTo.toDateString();
-                                  const inRange   = importEnabled && thisDate > importFrom && thisDate < importTo;
-                                  const isActive  = isFrom || isTo;
-                                  return (
-                                    <TouchableOpacity
-                                      key={day}
-                                      style={[styles.calCell, inRange && styles.calCellInRange, isActive && styles.calCellActive]}
-                                      onPress={() => selectDay(day)}
-                                      activeOpacity={0.7}
-                                    >
-                                      <Text style={[styles.calDayText, isActive && styles.calDayTextActive]}>{day}</Text>
-                                    </TouchableOpacity>
-                                  );
-                                })}
-                              </View>
-                            </View>
-                          )}
-                        </View>
-                      )}
-                    </View>
-
                     {/* How to get API keys — collapsible guide */}
                     <View style={styles.fieldGroup}>
                       <TouchableOpacity style={styles.guideHeader} activeOpacity={0.8} onPress={toggleGuide}>
@@ -823,6 +745,76 @@ export default function ChannelsScreen({ navigation }: any) {
                   </>
                 )}
 
+                {/* Import Historical Data toggle — shown for both CEX and DEX */}
+                <View style={styles.fieldGroup}>
+                  <TouchableOpacity style={styles.importToggleRow} activeOpacity={0.85} onPress={toggleImport}>
+                    <View style={styles.importToggleText}>
+                      <Text style={styles.permLabel}>Import Historical Data</Text>
+                      <Text style={styles.permDesc}>Select a date range to pull past transactions</Text>
+                    </View>
+                    <Animated.View style={[styles.toggleTrack, { backgroundColor: importToggleAnim.interpolate({ inputRange: [0,1], outputRange: ['#333333','#F26522'] }) }]}>
+                      <Animated.View style={[styles.toggleThumb, { transform: [{ translateX: importToggleAnim.interpolate({ inputRange: [0,1], outputRange: [2, 22] }) }] }]} />
+                    </Animated.View>
+                  </TouchableOpacity>
+
+                  {importEnabled && (
+                    <View style={styles.importRangeBlock}>
+                      <View style={styles.importDateRow}>
+                        <TouchableOpacity
+                          style={[styles.importDateBtn, calTarget === 'from' && styles.importDateBtnActive]}
+                          onPress={() => calTarget === 'from' ? setCalTarget(null) : openCal('from', importFrom)}
+                        >
+                          <Text style={styles.importDateLabel}>From</Text>
+                          <Text style={styles.importDateValue}>{fmtDate(importFrom)}</Text>
+                        </TouchableOpacity>
+
+                        <Text style={styles.importDateArrow}>→</Text>
+
+                        <TouchableOpacity
+                          style={[styles.importDateBtn, calTarget === 'to' && styles.importDateBtnActive]}
+                          onPress={() => calTarget === 'to' ? setCalTarget(null) : openCal('to', importTo)}
+                        >
+                          <Text style={styles.importDateLabel}>To</Text>
+                          <Text style={styles.importDateValue}>{fmtDate(importTo)}</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {calTarget !== null && (
+                        <View style={styles.calendarBox}>
+                          <View style={styles.calHeader}>
+                            <TouchableOpacity onPress={prevMonth} style={styles.calNavBtn}><Text style={styles.calNavArrow}>‹</Text></TouchableOpacity>
+                            <Text style={styles.calMonthLabel}>{MONTHS[calMonth]} {calYear}</Text>
+                            <TouchableOpacity onPress={nextMonth} style={styles.calNavBtn}><Text style={styles.calNavArrow}>›</Text></TouchableOpacity>
+                          </View>
+                          <View style={styles.calDayRow}>
+                            {DAYS.map(d => <Text key={d} style={styles.calDayHeader}>{d}</Text>)}
+                          </View>
+                          <View style={styles.calGrid}>
+                            {buildCalDays().map((day, idx) => {
+                              if (!day) return <View key={`e${idx}`} style={styles.calCell} />;
+                              const thisDate = new Date(calYear, calMonth, day);
+                              const isFrom   = thisDate.toDateString() === importFrom.toDateString();
+                              const isTo     = thisDate.toDateString() === importTo.toDateString();
+                              const inRange  = importEnabled && thisDate > importFrom && thisDate < importTo;
+                              const isActive = isFrom || isTo;
+                              return (
+                                <TouchableOpacity
+                                  key={day}
+                                  style={[styles.calCell, inRange && styles.calCellInRange, isActive && styles.calCellActive]}
+                                  onPress={() => selectDay(day)}
+                                  activeOpacity={0.7}
+                                >
+                                  <Text style={[styles.calDayText, isActive && styles.calDayTextActive]}>{day}</Text>
+                                </TouchableOpacity>
+                              );
+                            })}
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </View>
+
                 {/* Terms */}
                 <TouchableOpacity style={styles.termsRow} activeOpacity={0.8} onPress={() => setTermsAgreed(!termsAgreed)}>
                   <View style={[styles.permCheck, termsAgreed && styles.permCheckActive]}>
@@ -874,6 +866,13 @@ export default function ChannelsScreen({ navigation }: any) {
                       try {
                         if (isDex) {
                           await walletService.connectDex(selectedExchange, walletAddress);
+                          if (importEnabled) {
+                            await channelService.syncChannel(
+                              selectedExchange,
+                              { trades: true, deposits: true, withdrawals: true },
+                              { from: importFrom.toISOString(), to: importTo.toISOString() }
+                            );
+                          }
                         } else {
                           await walletService.connect(selectedExchange, apiKey, apiSecret);
                           await channelService.syncChannel(
@@ -1108,7 +1107,7 @@ export default function ChannelsScreen({ navigation }: any) {
                       assets: selected.map(r => ({
                         asset:           r.asset,
                         margin:          parseFloat(r.margin) || 0,
-                        priceAtCreation: r.livePrice,
+                        priceAtCreation: r.livePrice as number,
                       })),
                     };
                     try {
