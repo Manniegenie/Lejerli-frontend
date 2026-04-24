@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'https://lejerli-2.vercel.app',
+  baseURL: 'https://lejerli-2.vercel.app',
   timeout: 30000,
   withCredentials: true,
   headers: {
