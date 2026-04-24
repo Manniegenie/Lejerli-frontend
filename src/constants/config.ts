@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'http://localhost:3000',
+  BASE_URL: process.env.EXPO_PUBLIC_API_URL || 'https://lejerli-2.vercel.app',
   TIMEOUT: 30000, // 30 seconds
 };
 
