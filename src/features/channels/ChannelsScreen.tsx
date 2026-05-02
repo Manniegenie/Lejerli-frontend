@@ -931,7 +931,7 @@ export default function ChannelsScreen({ navigation }: any) {
                 ) : (
                   <View style={{ gap: 10 }}>
                     {connectedAccounts.map(acct => {
-                      const ex = exchanges.find(e => e.id === acct.exchange);
+                      const ex = exchanges.find(e => e.id === acct.exchange) ?? dexWallets.find(e => e.id === acct.exchange);
                       return (
                         <TouchableOpacity
                           key={acct.exchange}
@@ -1219,7 +1219,7 @@ export default function ChannelsScreen({ navigation }: any) {
           {connectedAccounts.length > 0 && (
             <View style={styles.connectedSection}>
               {connectedAccounts.map(acct => {
-                const ex = exchanges.find(e => e.id === acct.exchange);
+                const ex = exchanges.find(e => e.id === acct.exchange) ?? dexWallets.find(e => e.id === acct.exchange);
                 const fmtSynced = acct.lastSynced
                   ? new Date(acct.lastSynced).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                   : 'Never';
