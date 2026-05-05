@@ -18,6 +18,9 @@ import DashboardScreen from '../features/dashboard/DashboardScreen';
 import ChannelsScreen from '../features/channels/ChannelsScreen';
 import HomeScreen from '../features/home/HomeScreen';
 import ConnectWalletScreen from '../features/wallet/ConnectWalletScreen';
+import TreeExpansionScreen from '../features/trees/TreeExpansionScreen';
+import FiatTreeScreen from '../features/trees/FiatTreeScreen';
+import CryptoTreeScreen from '../features/trees/CryptoTreeScreen';
 
 // Common
 import LoadingScreen from '../components/common/LoadingScreen';
@@ -47,6 +50,9 @@ function MainStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="Channels" component={ChannelsScreen} />
+      <Stack.Screen name="TreeExpansion" component={TreeExpansionScreen} />
+      <Stack.Screen name="FiatTree" component={FiatTreeScreen} />
+      <Stack.Screen name="CryptoTree" component={CryptoTreeScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen
         name="ConnectWallet"

@@ -452,6 +452,15 @@ export default function ChannelsScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
+        {/* Trees nav */}
+        <View style={styles.ctaRow}>
+          <TouchableOpacity style={styles.ctaChannels} activeOpacity={0.85} onPress={() => navigation.navigate('TreeExpansion')}>
+            <Image source={require('../../../assets/carbon_circle-filled.png')} style={styles.windowIcon} resizeMode="contain" />
+            <Text style={styles.ctaText}>Trees</Text>
+            <Image source={require('../../../assets/chevron-down.png')} style={styles.chevronIcon} resizeMode="contain" />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.ctaRow}>
           <TouchableOpacity style={styles.ctaChannels} activeOpacity={0.85}>
             <Image source={require('../../../assets/token_swap.png')} style={styles.windowIcon} resizeMode="contain" />
