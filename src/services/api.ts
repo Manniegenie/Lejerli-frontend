@@ -1,34 +1,27 @@
 import axios from 'axios';
+import { getSecure, deleteSecure } from '../utils/storage';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
   timeout: 30000,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor — reads token synchronously from localStorage
-// Uses the same key ('auth_token') that authSlice writes on login/restore
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  async (config) => {
+    const token = await getSecure('auth_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor — on 401/403 clear stale auth data
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
+      await deleteSecure('auth_token');
+      await deleteSecure('auth_user');
     }
     return Promise.reject(error);
   }

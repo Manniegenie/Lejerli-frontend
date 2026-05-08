@@ -1,4 +1,5 @@
 import api from './api';
+import { saveSecure, getSecure, deleteSecure } from '../utils/storage';
 
 export interface SignupData {
   email: string;
@@ -26,7 +27,7 @@ class AuthService {
   async signup(data: SignupData): Promise<AuthResponse> {
     const response = await api.post('/signup', data);
     if (response.data.success && response.data.data?.token) {
-      this.saveAuthData(response.data.data);
+      await this.saveAuthData(response.data.data);
     }
     return response.data;
   }
@@ -34,29 +35,33 @@ class AuthService {
   async login(data: LoginData): Promise<AuthResponse> {
     const response = await api.post('/signin', data);
     if (response.data.success && response.data.data?.token) {
-      this.saveAuthData(response.data.data);
+      await this.saveAuthData(response.data.data);
     }
     return response.data;
   }
 
   async logout(): Promise<void> {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+    await deleteSecure('auth_token');
+    await deleteSecure('auth_user');
   }
 
-  // Synchronous — used by authSlice initial state and AppNavigator restore
-  getStoredToken(): string | null {
-    return localStorage.getItem('auth_token');
+  async getStoredToken(): Promise<string | null> {
+    return getSecure('auth_token');
   }
 
-  getStoredUser(): any | null {
-    const s = localStorage.getItem('auth_user');
+  async getStoredUser(): Promise<any | null> {
+    const s = await getSecure('auth_user');
     return s ? JSON.parse(s) : null;
   }
 
-  private saveAuthData(data: { token: string; id: string; email: string; username: string }): void {
-    localStorage.setItem('auth_token', data.token);
-    localStorage.setItem('auth_user', JSON.stringify({
+  private async saveAuthData(data: {
+    token: string;
+    id: string;
+    email: string;
+    username: string;
+  }): Promise<void> {
+    await saveSecure('auth_token', data.token);
+    await saveSecure('auth_user', JSON.stringify({
       id: data.id,
       email: data.email,
       username: data.username,

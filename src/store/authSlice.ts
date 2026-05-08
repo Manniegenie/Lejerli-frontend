@@ -13,46 +13,28 @@ interface AuthState {
   loading: boolean;
 }
 
-const stored = (() => {
-  try {
-    const t = localStorage.getItem('auth_token');
-    const u = localStorage.getItem('auth_user');
-    if (t && u) return { token: t, user: JSON.parse(u) };
-  } catch (_) {}
-  return null;
-})();
-
 const initialState: AuthState = {
-  user:            stored?.user  ?? null,
-  token:           stored?.token ?? null,
-  isAuthenticated: !!stored,
-  loading:         false,
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  loading: true, // true until AppNavigator finishes async session restore
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (
-      state,
-      action: PayloadAction<{ user: User; token: string }>
-    ) => {
+    setCredentials: (state, action: PayloadAction<{ user: User; token: string }>) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
-      try {
-        localStorage.setItem('auth_token', action.payload.token);
-        localStorage.setItem('auth_user', JSON.stringify(action.payload.user));
-      } catch (_) {}
+      state.loading = false;
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      try {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      } catch (_) {}
+      state.loading = false;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
