@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Lejerli",
+    "slug": "lejerli-frontend",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/Icon Wht.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Icon Wht.png",
+        "backgroundColor": "#0a0a0a"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/Icon Wht.png",
+      "name": "Lejerli",
+      "shortName": "Lejerli",
+      "description": "Lejerli",
+      "themeColor": "#0a0a0a",
+      "backgroundColor": "#0a0a0a"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/Icon Wht.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0a0a0a"
+        }
+      ]
+    ]
+  }
+}
