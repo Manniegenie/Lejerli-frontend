@@ -128,6 +128,9 @@ export default function SignupScreen() {
                 returnKeyType="next"
               />
             </View>
+            {password.length > 0 && !isPasswordValid ? (
+              <Text style={s.hintText}>{8 - password.length} more character{8 - password.length === 1 ? '' : 's'} needed.</Text>
+            ) : null}
 
             <Text style={[s.label, s.labelSpaced]}>CONFIRM PASSWORD</Text>
             <View style={s.inputRow}>
@@ -240,6 +243,11 @@ function makeStyles(colors: AppColors) {
       fontSize: 12,
       color: colors.danger,
       marginTop: 10,
+    },
+    hintText: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginTop: 8,
     },
     button: {
       height: 52,
