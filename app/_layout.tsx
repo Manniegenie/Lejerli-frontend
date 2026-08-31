@@ -1,79 +1,14 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import authService from '../src/services/authService';
-import { setLogoutHandler } from '../src/services/api';
+import { AuthContext, useAuthProvider } from '../hooks/useAuth';
+import { ThemeProvider } from '../contexts/ThemeContext';
+import { lightColors } from '../constants/theme';
 
 SplashScreen.preventAutoHideAsync();
-
-// ─── Auth Context ──────────────────────────────────────────────────────────────
-
-interface User {
-  id: string;
-  email: string;
-  username: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  loading: boolean;
-  login: (user: User, token: string) => void;
-  logout: () => Promise<void>;
-}
-
-export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
-export const useAuth = () => useContext(AuthContext);
-
-function useAuthProvider(): AuthContextType {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const restore = async () => {
-      try {
-        const storedToken = await authService.getStoredToken();
-        const storedUser = await authService.getStoredUser();
-        if (storedToken && storedUser) {
-          setToken(storedToken);
-          setUser(storedUser);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    restore();
-  }, []);
-
-  const login = useCallback((u: User, t: string) => {
-    setUser(u);
-    setToken(t);
-  }, []);
-
-  const logout = useCallback(async () => {
-    await authService.logout();
-    setUser(null);
-    setToken(null);
-  }, []);
-
-  useEffect(() => {
-    setLogoutHandler(logout);
-  }, [logout]);
-
-  return {
-    user,
-    token,
-    isAuthenticated: !!token,
-    loading,
-    login,
-    logout,
-  };
-}
 
 // ─── Root Layout ──────────────────────────────────────────────────────────────
 
@@ -85,13 +20,16 @@ export default function RootLayout() {
     'GeneralSans-Italic': require('../assets/fonts/GeneralSans-VariableItalic.ttf'),
   });
 
+  // Runs before ThemeProvider mounts (RootLayout is what renders the
+  // provider, so it can't consume useTheme() itself here), so this reads
+  // the raw theme values directly rather than through the context.
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      document.documentElement.style.backgroundColor = '#0a0a0a';
-      document.body.style.backgroundColor = '#0a0a0a';
+      document.documentElement.style.backgroundColor = lightColors.background;
+      document.body.style.backgroundColor = lightColors.background;
       const style = document.createElement('style');
       style.textContent = `
-        html, body, #root { background-color: #0a0a0a !important; }
+        html, body, #root { background-color: ${lightColors.background} !important; }
         * { font-family: 'GeneralSans', -apple-system, sans-serif; }
         *:focus, *:focus-visible, *:focus-within {
           outline: none !important;
@@ -112,9 +50,11 @@ export default function RootLayout() {
   if (!fontsLoaded || auth.loading) return null;
 
   return (
-    <AuthContext.Provider value={auth}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style="light" />
-    </AuthContext.Provider>
+    <ThemeProvider>
+      <AuthContext.Provider value={auth}>
+        <Stack screenOptions={{ headerShown: false }} />
+        <StatusBar style="dark" />
+      </AuthContext.Provider>
+    </ThemeProvider>
   );
 }

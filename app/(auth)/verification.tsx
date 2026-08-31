@@ -1,2 +1,2 @@
-import VerificationScreen from '../../src/features/auth/VerificationScreen';
+import VerificationScreen from '../../features/auth/VerificationScreen';
 export default VerificationScreen;

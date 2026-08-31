@@ -5,23 +5,23 @@ export default {
     version: '1.0.0',
     scheme: 'lejerli',
     orientation: 'portrait',
-    icon: './assets/logo.png',
-    userInterfaceStyle: 'dark',
+    icon: './assets/icon.png',
+    userInterfaceStyle: 'light',
     newArchEnabled: true,
     splash: {
-      image: './assets/logo.png',
+      image: './assets/splash-icon.png',
       resizeMode: 'contain',
       backgroundColor: '#0a0a0a',
     },
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.lejerli.app',
-      icon: './assets/logo.png',
+      icon: './assets/icon.png',
     },
     android: {
       package: 'com.lejerli.app',
       adaptiveIcon: {
-        foregroundImage: './assets/logo.png',
+        foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#0a0a0a',
       },
       edgeToEdgeEnabled: true,
@@ -29,7 +29,7 @@ export default {
     },
     web: {
       bundler: 'metro',
-      favicon: './assets/logo.png',
+      favicon: './assets/favicon.png',
       name: 'Lejerli',
       shortName: 'Lejerli',
       description: 'Unified crypto portfolio tracker',
@@ -39,6 +39,11 @@ export default {
     plugins: ['expo-router', 'expo-secure-store', 'expo-font'],
     experiments: {
       typedRoutes: true,
+    },
+    extra: {
+      eas: {
+        projectId: 'c309040f-5e51-4a7f-acc6-73311aebd3b5',
+      },
     },
   },
 };

@@ -1,6 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { useAuth } from '../_layout';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function AuthLayout() {
   const { isAuthenticated, loading } = useAuth();
@@ -8,7 +8,7 @@ export default function AuthLayout() {
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      router.replace('/(app)/dashboard');
+      router.replace('/(app)/chats');
     }
   }, [isAuthenticated, loading]);
 

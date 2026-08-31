@@ -1,11 +1,13 @@
 import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import { useAuth } from '../_layout';
-import TabBar from '../../src/components/common/TabBar';
+import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../contexts/ThemeContext';
+import TabBar from '../../components/common/TabBar';
 
 export default function AppLayout() {
   const { isAuthenticated, loading } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function AppLayout() {
   }, [isAuthenticated, loading]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Stack screenOptions={{ headerShown: false }} />
       <TabBar />
     </View>
