@@ -3,7 +3,6 @@ import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../hooks/useAuth';
-import authService from '../../services/authService';
 import desksService, { InviteDetail } from '../../services/desksService';
 import { useTheme } from '../../contexts/ThemeContext';
 import { AppColors } from '../../constants/theme';
@@ -70,16 +69,14 @@ export default function InviteScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, authLoading, isAuthenticated, user]);
 
-  const handleContinue = async () => {
+  const goToSignup = () => {
     if (!detail || !token) return;
-    setStatus('accepting');
-    const res = await authService.requestOtp(detail.targetEmail);
-    if (res.success) {
-      router.replace({ pathname: '/(auth)/verification', params: { email: detail.targetEmail, inviteToken: token } });
-    } else {
-      setStatus('error');
-      setErrorMsg(res.error || 'Could not send a verification code.');
-    }
+    router.replace({ pathname: '/(auth)/signup', params: { email: detail.targetEmail, inviteToken: token } });
+  };
+
+  const goToLogin = () => {
+    if (!detail || !token) return;
+    router.replace({ pathname: '/(auth)/login', params: { email: detail.targetEmail, inviteToken: token } });
   };
 
   const handleSwitchAccount = async () => {
@@ -109,8 +106,11 @@ export default function InviteScreen() {
             <Text style={s.subtitle}>
               {detail.inviterName ? `${detail.inviterName} — ` : ''}{inviteKindCopy(detail.type)}
             </Text>
-            <TouchableOpacity style={s.button} onPress={handleContinue} activeOpacity={0.85}>
-              <Text style={s.buttonText}>Continue with {detail.targetEmail}</Text>
+            <TouchableOpacity style={s.button} onPress={goToSignup} activeOpacity={0.85}>
+              <Text style={s.buttonText}>Create account with {detail.targetEmail}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.secondaryButton} onPress={goToLogin} activeOpacity={0.7}>
+              <Text style={s.secondaryButtonText}>I already have an account</Text>
             </TouchableOpacity>
           </>
         )}
@@ -201,6 +201,16 @@ function makeStyles(colors: AppColors) {
       color: '#ffffff',
       fontSize: 15,
       fontWeight: '600',
+    },
+    secondaryButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 16,
+    },
+    secondaryButtonText: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      fontWeight: '500',
     },
   });
 }

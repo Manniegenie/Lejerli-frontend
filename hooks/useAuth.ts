@@ -7,12 +7,10 @@ import { setLogoutHandler } from '../services/api';
 // provider), useAuthProvider() holding the actual state/logic. Lejerli is
 // strict TypeScript (Chatbramp-app's version isn't), so this is typed.
 //
-// The login/logout/checkAuth bodies are adapted to Lejerli's email-OTP
-// contract: authService.requestOtp/verifyOtp do the actual network calls
-// from the login/verification screens, and hand this hook an already-
-// resolved {user, token} pair via login() rather than this hook owning
-// credential submission itself (there's no password/PIN flow to mirror
-// from Chatbramp here).
+// The login/logout/checkAuth bodies are adapted to Lejerli's email+password
+// contract: authService.signup/login do the actual network calls from the
+// signup/login screens, and hand this hook an already-resolved {user, token}
+// pair via login() rather than this hook owning credential submission itself.
 
 export interface User {
   id: string;

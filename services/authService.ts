@@ -1,13 +1,7 @@
 import api from './api';
 import { saveSecure, getSecure, deleteSecure } from '../utils/storage';
 
-export interface RequestOtpResult {
-  success: boolean;
-  error: string;
-  purpose: 'SIGNUP' | 'LOGIN' | null;
-}
-
-export interface VerifyOtpResult {
+export interface AuthResult {
   success: boolean;
   error: string;
   data: {
@@ -21,21 +15,22 @@ export interface VerifyOtpResult {
 }
 
 class AuthService {
-  async requestOtp(email: string): Promise<RequestOtpResult> {
-    const res = await api.post('/auth/request-otp', { email });
-    if (res.success) {
-      return { success: true, error: '', purpose: res.data?.purpose ?? null };
-    }
-    return { success: false, error: (res as any).error || 'Failed to request code', purpose: null };
-  }
-
-  async verifyOtp(email: string, otp: string): Promise<VerifyOtpResult> {
-    const res = await api.post('/auth/verify-otp', { email, otp });
+  async signup(email: string, password: string, displayName?: string): Promise<AuthResult> {
+    const res = await api.post('/auth/signup', { email, password, displayName });
     if (res.success && res.data?.token) {
       await this.saveAuthData(res.data);
       return { success: true, error: '', data: res.data };
     }
-    return { success: false, error: res.success ? 'Verification failed' : (res as any).error, data: null };
+    return { success: false, error: (res as any).error || 'Could not create account', data: null };
+  }
+
+  async login(email: string, password: string): Promise<AuthResult> {
+    const res = await api.post('/auth/login', { email, password });
+    if (res.success && res.data?.token) {
+      await this.saveAuthData(res.data);
+      return { success: true, error: '', data: res.data };
+    }
+    return { success: false, error: (res as any).error || 'Invalid email or password', data: null };
   }
 
   async logout(): Promise<void> {

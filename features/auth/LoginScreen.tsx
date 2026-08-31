@@ -11,32 +11,60 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import authService from '../../services/authService';
+import desksService from '../../services/desksService';
+import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../contexts/ThemeContext';
 import { AppColors } from '../../constants/theme';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const { colors } = useTheme();
   const s = React.useMemo(() => makeStyles(colors), [colors]);
-  const [email, setEmail] = useState('');
+  const { email: prefillEmail, inviteToken } = useLocalSearchParams<{ email?: string; inviteToken?: string }>();
+  const [email, setEmail] = useState(prefillEmail || '');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
 
   const handleSubmit = async () => {
     if (!isValid || loading) return;
     setLoading(true);
     setError('');
-    const res = await authService.requestOtp(email.trim());
-    setLoading(false);
-    if (res.success) {
-      router.push({ pathname: '/(auth)/verification', params: { email: email.trim() } });
-    } else {
-      setError(res.error || 'Could not send verification code.');
+    const res = await authService.login(email.trim(), password);
+    if (!res.success || !res.data) {
+      setLoading(false);
+      setError(res.error || 'Could not sign in.');
+      return;
     }
+
+    login(
+      {
+        id: res.data.id,
+        email: res.data.email,
+        displayName: res.data.displayName,
+        verificationTier: res.data.verificationTier,
+      },
+      res.data.token
+    );
+
+    if (inviteToken) {
+      const acceptRes = await desksService.acceptInvite(inviteToken);
+      setLoading(false);
+      if (acceptRes.success && acceptRes.data.type === 'PARTNER' && acceptRes.data.room) {
+        router.replace({ pathname: '/(app)/chats/[id]', params: { id: acceptRes.data.room._id, kind: 'ROOM' } });
+      } else {
+        router.replace('/(app)/chats');
+      }
+      return;
+    }
+
+    setLoading(false);
+    router.replace('/(app)/chats');
   };
 
   return (
@@ -49,9 +77,7 @@ export default function LoginScreen() {
           <Image source={require('../../assets/logo.png')} style={s.logo} resizeMode="contain" />
 
           <Text style={s.title}>Sign in to Lejerli</Text>
-          <Text style={s.subtitle}>
-            Enter your work email and we'll send you a 6-digit code to sign in.
-          </Text>
+          <Text style={s.subtitle}>Enter your email and password to continue.</Text>
 
           <Text style={s.label}>WORK EMAIL</Text>
           <View style={s.inputRow}>
@@ -64,6 +90,21 @@ export default function LoginScreen() {
               autoCapitalize="none"
               keyboardType="email-address"
               autoComplete="email"
+              returnKeyType="next"
+            />
+          </View>
+
+          <Text style={[s.label, s.labelSpaced]}>PASSWORD</Text>
+          <View style={s.inputRow}>
+            <TextInput
+              style={s.input}
+              placeholder="••••••••"
+              placeholderTextColor={colors.textSecondary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password"
               returnKeyType="go"
               onSubmitEditing={handleSubmit}
             />
@@ -79,7 +120,17 @@ export default function LoginScreen() {
           >
             {loading
               ? <ActivityIndicator color="#ffffff" />
-              : <Text style={s.buttonText}>Continue</Text>}
+              : <Text style={s.buttonText}>Sign in</Text>}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={s.signupLink}
+            onPress={() => router.push({ pathname: '/(auth)/signup', params: { email: email.trim(), inviteToken } })}
+            activeOpacity={0.7}
+          >
+            <Text style={s.signupLinkText}>
+              Don't have an account? <Text style={s.signupLinkTextBold}>Sign up</Text>
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -125,6 +176,9 @@ function makeStyles(colors: AppColors) {
       color: colors.textSecondary,
       marginBottom: 8,
     },
+    labelSpaced: {
+      marginTop: 20,
+    },
     inputRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -162,6 +216,18 @@ function makeStyles(colors: AppColors) {
     buttonText: {
       color: '#ffffff',
       fontSize: 15,
+      fontWeight: '600',
+    },
+    signupLink: {
+      marginTop: 20,
+      alignItems: 'center',
+    },
+    signupLinkText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    signupLinkTextBold: {
+      color: colors.primary,
       fontWeight: '600',
     },
   });

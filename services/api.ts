@@ -90,10 +90,14 @@ async function request<T>(
     }
 
     if (!res.ok) {
-      console.warn(`[api] ${method} ${endpoint} → ${res.status}`, parsed.message || parsed.error);
+      // express-validator's 400s put the actual reason in errors[0].msg, not
+      // the generic top-level "Validation failed." message — prefer it.
+      const validationMsg = Array.isArray(parsed.errors) ? parsed.errors[0]?.msg : undefined;
+      const errorMsg = validationMsg || parsed.message || parsed.error || `HTTP ${res.status}`;
+      console.warn(`[api] ${method} ${endpoint} → ${res.status}`, errorMsg);
       return {
         success: false,
-        error: parsed.message || parsed.error || `HTTP ${res.status}`,
+        error: errorMsg,
         status: res.status,
       };
     }
