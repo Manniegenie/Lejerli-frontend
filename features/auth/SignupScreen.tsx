@@ -128,7 +128,9 @@ export default function SignupScreen() {
                 returnKeyType="next"
               />
             </View>
-            {password.length > 0 && !isPasswordValid ? (
+            {password.length === 0 ? (
+              <Text style={s.hintText}>Must be at least 8 characters.</Text>
+            ) : !isPasswordValid ? (
               <Text style={s.hintText}>{8 - password.length} more character{8 - password.length === 1 ? '' : 's'} needed.</Text>
             ) : null}
 
